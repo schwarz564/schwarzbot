@@ -98,19 +98,19 @@ client.on('interactionCreate', async (interaction) => {
 
       const embed = new EmbedBuilder()
         .setColor('#00AEEF')
-        .setTitle('🎟️ **Divine Software Tickets** 🎟️')
+        .setTitle('🎟️ **SCHWARZDEV Tickets** 🎟️')
         .setDescription(
           `Merhaba! Aşağıdaki menüden ihtiyacınıza uygun olan ticket türünü seçebilirsiniz.\n\n` +
           `🔹 **Satın Alma**: Bir şey satın almak istiyorsanız, **Satın Alma Bileti** seçin.\n` +
           `🔹 **Destek**: Destek almak, sorular sormak veya başvuru yapmak için **Destek Bileti** seçin.`
         )
         .setFooter({
-          text: 'Divine Software Destek Ekibi',
-          iconURL: 'https://media.discordapp.net/attachments/1256392027449327637/1297984107623485471/dslogohatasiz_-_Trim.gif',
+          text: 'SCHWARZDEV Destek Ekibi',
+          iconURL: 'https://cdn.discordapp.com/attachments/1367387231441911851/1367481879246147615/standard.gif',
         })
-        .setThumbnail('https://media.discordapp.net/attachments/1256392027449327637/1297984107623485471/dslogohatasiz_-_Trim.gif')
+        .setThumbnail('https://cdn.discordapp.com/attachments/1367387231441911851/1367481879246147615/standard.gif')
         .setImage(
-          'https://media.discordapp.net/attachments/1317222348079890573/1317400558700593162/standard.gif?ex=675e8c61&is=675d3ae1&hm=92f66b8f40a3827d940fb4188717dca566c39a49b7bd656129408233c701f0c0&=&width=374&height=48'
+          'https://cdn.discordapp.com/attachments/1367387231441911851/1367481879246147615/standard.gif'
         );
 
       const selectMenu = new StringSelectMenuBuilder()
@@ -242,8 +242,8 @@ async function createTicket(interaction, ticketType) {
       `📌 **Not:** Ticket'ınızı kapatmak için aşağıdaki **"Ticket Kapat"** butonunu kullanabilirsiniz.`
     )
     .setFooter({
-      text: 'Divine Software Destek Ekibi',
-      iconURL: 'https://media.discordapp.net/attachments/1256392027449327637/1297984107623485471/dslogohatasiz_-_Trim.gif',
+      text: 'SCHWARZDEV Destek Ekibi',
+      iconURL: 'https://cdn.discordapp.com/attachments/1367387231441911851/1367481879246147615/standard.gif',
     });
 
   const button = new ActionRowBuilder().addComponents(
