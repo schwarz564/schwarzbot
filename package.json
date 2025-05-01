@@ -1,0 +1,24 @@
+{
+  "name": "ticket",
+  "version": "1.0.0",
+  "main": "ticket.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/schwarzldev/vouch-bot-dev.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/schwarzldev/vouch-bot-dev/issues"
+  },
+  "homepage": "https://github.com/schwarzldev/vouch-bot-dev#readme",
+  "description": "",
+  "dependencies": {
+    "discord.js": "^14.19.2",
+    "dotenv": "^16.5.0"
+  }
+}
