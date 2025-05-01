@@ -110,7 +110,7 @@ client.on('interactionCreate', async (interaction) => {
         })
         .setThumbnail('https://cdn.discordapp.com/attachments/1367387231441911851/1367481879246147615/standard.gif')
         .setImage(
-          'https://cdn.discordapp.com/attachments/1367387231441911851/1367481879246147615/standard.gif'
+          'https://cdn.discordapp.com/attachments/1367387231441911851/1367488281394020502/350kb.gif'
         );
 
       const selectMenu = new StringSelectMenuBuilder()
