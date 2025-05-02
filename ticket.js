@@ -1,3 +1,4 @@
+require('./keepalive.js');
 const {
   Client,
   GatewayIntentBits,
