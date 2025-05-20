@@ -106,7 +106,7 @@ client.on('interactionCreate', async (interaction) => {
           `🔹 Support: Select Support Ticket to get support, ask questions or submit an application.`
         )
         .setFooter({
-          text: 'FLEXWARE Destek Ekibi',
+          text: 'FLEXWARE Support Team',
           iconURL: 'https://media.discordapp.net/attachments/1373088819989188620/1374201092979818516/20250520_0443_Futuristic_Chrome_Emblem_simple_compose_01jvnnqjzhf7r9c7z3e0pxdyzm.png',
         })
         .setThumbnail('https://media.discordapp.net/attachments/1373088819989188620/1374201092979818516/20250520_0443_Futuristic_Chrome_Emblem_simple_compose_01jvnnqjzhf7r9c7z3e0pxdyzm.png')
