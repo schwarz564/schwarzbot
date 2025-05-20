@@ -129,14 +129,12 @@ client.once('ready', async () => {
   }
 });
 
-// Aşağısı: interaction işlemleri ve createTicket fonksiyonu (dokunulmadı)
-
 client.on('interactionCreate', async (interaction) => {
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName === 'sendpanel') {
-      // ... bu kısmı koruyabilirsin, ama artık gerek kalmadı
+      // İstersen burayı doldurabilirsin
     } else if (interaction.commandName === 'add') {
-      // ... kullanıcı ekleme komutu
+      // Kullanıcıyı ticket'a ekleme kodları buraya
     }
   } else if (interaction.isStringSelectMenu() && interaction.customId === 'select_ticket_type') {
     if (usersWithOpenTickets.has(interaction.user.id)) {
@@ -186,7 +184,65 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 async function createTicket(interaction, ticketType) {
-  // ... ticket oluşturma fonksiyonu (aynı şekilde korunur)
+  try {
+    await interaction.deferReply({ ephemeral: true });
+
+    const guild = interaction.guild;
+    if (!guild) return interaction.editReply('Sunucu bulunamadı.');
+
+    const ticketNumber = ticketCounters[ticketType] || 1;
+    const channelName = `${ticketType}-${ticketNumber}`;
+
+    const channel = await guild.channels.create({
+      name: channelName,
+      type: ChannelType.GuildText,
+      permissionOverwrites: [
+        {
+          id: interaction.user.id,
+          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+        },
+        {
+          id: SUPPORT_ROLE_ID,
+          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
+        },
+        {
+          id: guild.roles.everyone.id,
+          deny: [PermissionFlagsBits.ViewChannel],
+        },
+      ],
+    });
+
+    usersWithOpenTickets.set(interaction.user.id, channel.name);
+
+    ticketCounters[ticketType] = ticketNumber + 1;
+    await saveCounters();
+
+    const embed = new EmbedBuilder()
+      .setColor('#00AEEF')
+      .setTitle('🎟️ Ticket Oluşturuldu!')
+      .setDescription(`${interaction.user} için yeni bir ticket kanalı oluşturuldu.`);
+
+    const closeButton = new ButtonBuilder()
+      .setCustomId('close_ticket')
+      .setLabel('Kapat')
+      .setStyle(ButtonStyle.Danger);
+
+    const row = new ActionRowBuilder().addComponents(closeButton);
+
+    await channel.send({ content: `${interaction.user}`, embeds: [embed], components: [row] });
+
+    await interaction.editReply({
+      content: `Ticket oluşturuldu: ${channel}`,
+      ephemeral: true,
+    });
+  } catch (error) {
+    console.error('Ticket oluşturulurken hata:', error);
+    if (interaction.deferred || interaction.replied) {
+      await interaction.editReply('Ticket oluşturulurken bir hata oluştu.');
+    } else {
+      await interaction.reply({ content: 'Ticket oluşturulurken bir hata oluştu.', ephemeral: true });
+    }
+  }
 }
 
 client.login(TOKEN);
