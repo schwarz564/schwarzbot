@@ -107,11 +107,11 @@ client.on('interactionCreate', async (interaction) => {
         )
         .setFooter({
           text: 'FLEXWARE Destek Ekibi',
-          iconURL: 'https://cdn.discordapp.com/attachments/1367387231441911851/1367481879246147615/standard.gif',
+          iconURL: 'https://media.discordapp.net/attachments/1373088819989188620/1374201092979818516/20250520_0443_Futuristic_Chrome_Emblem_simple_compose_01jvnnqjzhf7r9c7z3e0pxdyzm.png',
         })
-        .setThumbnail('https://cdn.discordapp.com/attachments/1367387231441911851/1367481879246147615/standard.gif')
+        .setThumbnail('https://media.discordapp.net/attachments/1373088819989188620/1374201092979818516/20250520_0443_Futuristic_Chrome_Emblem_simple_compose_01jvnnqjzhf7r9c7z3e0pxdyzm.png')
         .setImage(
-          'https://cdn.discordapp.com/attachments/1367387231441911851/1367488281394020502/350kb.gif'
+          'https://cdn.discordapp.com/attachments/1373009493973270569/1374208087212425276/standard.gif'
         );
 
       const selectMenu = new StringSelectMenuBuilder()
