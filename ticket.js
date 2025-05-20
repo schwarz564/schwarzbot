@@ -21,7 +21,8 @@ const GUILD_ID = process.env.GUILD_ID;
 const TOKEN = process.env.BOT_TOKEN;
 const SUPPORT_ROLE_ID = process.env.SUPPORT_ROLE_ID;
 const PANEL_CHANNEL_ID = process.env.PANEL_CHANNEL_ID;
-const TICKET_CATEGORY_ID = process.env.TICKET_CATEGORY_ID;
+const BUY_CATEGORY_ID = process.env.BUY_CATEGORY_ID;
+const SUPPORT_CATEGORY_ID = process.env.SUPPORT_CATEGORY_ID;
 
 const client = new Client({
   intents: [
@@ -39,7 +40,7 @@ const commands = [
   new SlashCommandBuilder()
     .setName('add')
     .setDescription('Bir kullanıcıyı ticketa ekler.')
-    .addUserOption((option) =>
+    .addUserOption(option =>
       option.setName('user').setDescription('Eklemek istediğiniz kullanıcı.').setRequired(true)
     ),
 ];
@@ -50,9 +51,9 @@ const rest = new REST({ version: '10' }).setToken(TOKEN);
   try {
     console.log('Komutlar kaydediliyor...');
     await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
-      body: commands.map((command) => command.toJSON()),
+      body: commands.map(cmd => cmd.toJSON()),
     });
-    console.log('Komutlar başarıyla kaydedildi!');
+    console.log('Komutlar başarıyla yüklendi!');
   } catch (error) {
     console.error(error);
   }
@@ -68,10 +69,10 @@ async function loadCounters() {
     ticketCounters = JSON.parse(data);
   } catch (error) {
     if (error.code === 'ENOENT') {
-      console.log('Ticket sayaçları dosyası bulunamadı, yeni bir dosya oluşturulacak.');
+      console.log('Sayaç dosyası yok, yenisi oluşturuluyor...');
       await fs.writeFile('ticketCounters.json', '{}');
     } else {
-      console.error('Ticket sayaçları yüklenirken hata oluştu:', error);
+      console.error('Sayaç okunurken hata:', error);
     }
   }
 }
@@ -80,13 +81,13 @@ async function saveCounters() {
   try {
     await fs.writeFile('ticketCounters.json', JSON.stringify(ticketCounters, null, 2));
   } catch (error) {
-    console.error('Ticket sayaçları kaydedilirken hata oluştu:', error);
+    console.error('Sayaç kaydedilirken hata:', error);
   }
 }
 
 client.once('ready', async () => {
   await loadCounters();
-  console.log(`Bot ${client.user.tag} olarak giriş yaptı!`);
+  console.log(`Bot giriş yaptı: ${client.user.tag}`);
 
   try {
     const channel = await client.channels.fetch(PANEL_CHANNEL_ID);
@@ -124,7 +125,7 @@ client.once('ready', async () => {
     const row = new ActionRowBuilder().addComponents(selectMenu);
 
     await channel.send({ embeds: [embed], components: [row] });
-    console.log('Panel otomatik olarak gönderildi.');
+    console.log('Panel gönderildi!');
   } catch (err) {
     console.error('Panel gönderilemedi:', err);
   }
@@ -133,119 +134,129 @@ client.once('ready', async () => {
 client.on('interactionCreate', async (interaction) => {
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName === 'sendpanel') {
-      // Panel gönderme komutu
+      // Panel gönderme komutu - zaten otomatik gönderiliyor
     } else if (interaction.commandName === 'add') {
-      // Kullanıcı ekleme komutu
+      // Kullanıcı ekleme - bu kısım daha sonra yapılabilir
     }
   } else if (interaction.isStringSelectMenu() && interaction.customId === 'select_ticket_type') {
     if (usersWithOpenTickets.has(interaction.user.id)) {
       return interaction.reply({
-        content: `Zaten açık bir ticket'ınız var: **${usersWithOpenTickets.get(interaction.user.id)}**. Lütfen onu kapatın veya destek alın.`,
+        content: `Zaten açık bir ticket'ınız var: **${usersWithOpenTickets.get(interaction.user.id)}**. Lütfen önce onu kapatın.`,
         ephemeral: true,
       });
     }
 
     const ticketType = interaction.values[0].includes('purchase') ? 'buy' : 'sup';
     await createTicket(interaction, ticketType);
-  } else if (interaction.isButton()) {
-    if (interaction.customId === 'close_ticket') {
-      const channel = interaction.channel;
+  } else if (interaction.isButton() && interaction.customId === 'close_ticket') {
+    const channel = interaction.channel;
 
-      if (channel.name.startsWith('buy-') || channel.name.startsWith('sup-')) {
-        const ticketOwner = channel.permissionOverwrites.cache.find(
-          (overwrite) =>
-            overwrite.allow.has(PermissionFlagsBits.ViewChannel) &&
-            overwrite.id !== SUPPORT_ROLE_ID &&
-            overwrite.id !== interaction.guild.id
-        );
+    if (channel.name.startsWith('buy-') || channel.name.startsWith('sup-')) {
+      const ticketOwner = channel.permissionOverwrites.cache.find(
+        (overwrite) =>
+          overwrite.allow.has(PermissionFlagsBits.ViewChannel) &&
+          overwrite.id !== SUPPORT_ROLE_ID &&
+          overwrite.id !== interaction.guild.id
+      );
 
-        if (ticketOwner) {
-          usersWithOpenTickets.delete(ticketOwner.id);
-        }
-
-        clearTimeout(ticketTimeouts.get(channel.id));
-        ticketTimeouts.delete(channel.id);
-
-        await interaction.reply({
-          content: 'Ticket **kapatılıyor**, kanal **siliniyor...**',
-          ephemeral: true,
-        });
-
-        setTimeout(async () => {
-          await channel.delete();
-        }, 3000);
-      } else {
-        await interaction.reply({
-          content: 'Bu komut yalnızca bir **ticket kanalında** kullanılabilir.',
-          ephemeral: true,
-        });
+      if (ticketOwner) {
+        usersWithOpenTickets.delete(ticketOwner.id);
       }
+
+      clearTimeout(ticketTimeouts.get(channel.id));
+      ticketTimeouts.delete(channel.id);
+
+      await interaction.reply({
+        content: 'Ticket kapatılıyor, kanal siliniyor...',
+        ephemeral: true,
+      });
+
+      setTimeout(async () => {
+        await channel.delete();
+      }, 3000);
+    } else {
+      await interaction.reply({
+        content: 'Bu sadece bir ticket kanalında kullanılabilir.',
+        ephemeral: true,
+      });
     }
   }
 });
 
 async function createTicket(interaction, ticketType) {
-  await interaction.deferReply({ ephemeral: true });
+  try {
+    await interaction.deferReply({ ephemeral: true });
 
-  if (!ticketCounters[ticketType]) ticketCounters[ticketType] = 1;
-  else ticketCounters[ticketType]++;
+    if (!ticketCounters[ticketType]) ticketCounters[ticketType] = 1;
+    else ticketCounters[ticketType]++;
 
-  await saveCounters();
+    await saveCounters();
 
-  const channelName = `${ticketType}-${ticketCounters[ticketType]}`;
+    const channelName = `${ticketType}-${ticketCounters[ticketType]}`;
+    let categoryId;
 
-  const channel = await interaction.guild.channels.create({
-    name: channelName,
-    type: ChannelType.GuildText,
-    parent: TICKET_CATEGORY_ID, // 📌 Burada kategori altında açılır
-    permissionOverwrites: [
-      {
-        id: interaction.user.id,
-        allow: [
-          PermissionFlagsBits.ViewChannel,
-          PermissionFlagsBits.SendMessages,
-          PermissionFlagsBits.ReadMessageHistory,
-        ],
-      },
-      {
-        id: SUPPORT_ROLE_ID,
-        allow: [
-          PermissionFlagsBits.ViewChannel,
-          PermissionFlagsBits.SendMessages,
-          PermissionFlagsBits.ReadMessageHistory,
-        ],
-      },
-      {
-        id: interaction.guild.id,
-        deny: [PermissionFlagsBits.ViewChannel],
-      },
-    ],
-  });
+    if (ticketType === 'buy') categoryId = BUY_CATEGORY_ID;
+    else if (ticketType === 'sup') categoryId = SUPPORT_CATEGORY_ID;
 
-  usersWithOpenTickets.set(interaction.user.id, channelName);
+    const channel = await interaction.guild.channels.create({
+      name: channelName,
+      type: ChannelType.GuildText,
+      parent: categoryId,
+      permissionOverwrites: [
+        {
+          id: interaction.user.id,
+          allow: [
+            PermissionFlagsBits.ViewChannel,
+            PermissionFlagsBits.SendMessages,
+            PermissionFlagsBits.ReadMessageHistory,
+          ],
+        },
+        {
+          id: SUPPORT_ROLE_ID,
+          allow: [
+            PermissionFlagsBits.ViewChannel,
+            PermissionFlagsBits.SendMessages,
+            PermissionFlagsBits.ReadMessageHistory,
+          ],
+        },
+        {
+          id: interaction.guild.id,
+          deny: [PermissionFlagsBits.ViewChannel],
+        },
+      ],
+    });
 
-  const closeButton = new ButtonBuilder()
-    .setCustomId('close_ticket')
-    .setLabel('Kapat')
-    .setStyle(ButtonStyle.Danger);
+    usersWithOpenTickets.set(interaction.user.id, channelName);
 
-  const row = new ActionRowBuilder().addComponents(closeButton);
+    const closeButton = new ButtonBuilder()
+      .setCustomId('close_ticket')
+      .setLabel('Kapat')
+      .setStyle(ButtonStyle.Danger);
 
-  const embed = new EmbedBuilder()
-    .setTitle('Ticket created')
-    .setDescription(`Hello ${interaction.user}, the authorities will deal with you as soon as possible.`)
-    .setColor('#00AEEF');
+    const row = new ActionRowBuilder().addComponents(closeButton);
 
-  await channel.send({
-    content: `<@${interaction.user.id}>`,
-    embeds: [embed],
-    components: [row],
-  });
+    const embed = new EmbedBuilder()
+      .setTitle('Ticket created')
+      .setDescription(`Hello ${interaction.user}, the authorities will deal with you as soon as possible.`)
+      .setColor('#00AEEF');
 
-  await interaction.editReply({
-    content: `Ticket oluşturuldu: ${channel}`,
-    ephemeral: true,
-  });
+    await channel.send({
+      content: `<@${interaction.user.id}>`,
+      embeds: [embed],
+      components: [row],
+    });
+
+    await interaction.editReply({
+      content: `Ticket oluşturuldu: ${channel}`,
+      ephemeral: true,
+    });
+  } catch (error) {
+    console.error('Ticket oluşturulurken hata:', error);
+    await interaction.editReply({
+      content: '❌ Ticket oluşturulurken hata oluştu.',
+      ephemeral: true,
+    });
+  }
 }
 
 client.login(TOKEN);
