@@ -129,12 +129,13 @@ client.once('ready', async () => {
   }
 });
 
+// interaction işlemleri
 client.on('interactionCreate', async (interaction) => {
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName === 'sendpanel') {
-      // İstersen burayı doldurabilirsin
+      // ... koruyabilirsin, artık gerek kalmadı
     } else if (interaction.commandName === 'add') {
-      // Kullanıcıyı ticket'a ekleme kodları buraya
+      // ... kullanıcı ekleme komutu
     }
   } else if (interaction.isStringSelectMenu() && interaction.customId === 'select_ticket_type') {
     if (usersWithOpenTickets.has(interaction.user.id)) {
@@ -184,65 +185,61 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 async function createTicket(interaction, ticketType) {
-  try {
-    await interaction.deferReply({ ephemeral: true });
+  // İşte buraya interaction deferReply ve editReply ekliyoruz:
+  await interaction.deferReply({ ephemeral: true });
 
-    const guild = interaction.guild;
-    if (!guild) return interaction.editReply('Sunucu bulunamadı.');
+  // Ticket oluşturma işlemleri buraya gelecek
+  // Örnek olarak:
+  // Sayaç arttır, kanal oluştur, izinleri ayarla, kullanıcıyı kaydet, vs.
 
-    const ticketNumber = ticketCounters[ticketType] || 1;
-    const channelName = `${ticketType}-${ticketNumber}`;
+  // Aşağıdaki örnek varsayımsal, kendi koduna göre değiştir:
+  if (!ticketCounters[ticketType]) ticketCounters[ticketType] = 1;
+  else ticketCounters[ticketType]++;
 
-    const channel = await guild.channels.create({
-      name: channelName,
-      type: ChannelType.GuildText,
-      permissionOverwrites: [
-        {
-          id: interaction.user.id,
-          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
-        },
-        {
-          id: SUPPORT_ROLE_ID,
-          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
-        },
-        {
-          id: guild.roles.everyone.id,
-          deny: [PermissionFlagsBits.ViewChannel],
-        },
-      ],
-    });
+  await saveCounters();
 
-    usersWithOpenTickets.set(interaction.user.id, channel.name);
+  const channelName = `${ticketType}-${ticketCounters[ticketType]}`;
 
-    ticketCounters[ticketType] = ticketNumber + 1;
-    await saveCounters();
+  const channel = await interaction.guild.channels.create({
+    name: channelName,
+    type: ChannelType.GuildText,
+    permissionOverwrites: [
+      {
+        id: interaction.user.id,
+        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
+      },
+      {
+        id: SUPPORT_ROLE_ID,
+        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
+      },
+      {
+        id: interaction.guild.id,
+        deny: [PermissionFlagsBits.ViewChannel],
+      },
+    ],
+  });
 
-    const embed = new EmbedBuilder()
-      .setColor('#00AEEF')
-      .setTitle('🎟️ Ticket Oluşturuldu!')
-      .setDescription(`${interaction.user} için yeni bir ticket kanalı oluşturuldu.`);
+  usersWithOpenTickets.set(interaction.user.id, channelName);
 
-    const closeButton = new ButtonBuilder()
-      .setCustomId('close_ticket')
-      .setLabel('Kapat')
-      .setStyle(ButtonStyle.Danger);
+  const closeButton = new ButtonBuilder()
+    .setCustomId('close_ticket')
+    .setLabel('Kapat')
+    .setStyle(ButtonStyle.Danger);
 
-    const row = new ActionRowBuilder().addComponents(closeButton);
+  const row = new ActionRowBuilder().addComponents(closeButton);
 
-    await channel.send({ content: `${interaction.user}`, embeds: [embed], components: [row] });
+  const embed = new EmbedBuilder()
+    .setTitle('Ticket oluşturuldu')
+    .setDescription(`Merhaba ${interaction.user}, yetkililer en kısa sürede sizinle ilgilenecektir.`)
+    .setColor('#00AEEF');
 
-    await interaction.editReply({
-      content: `Ticket oluşturuldu: ${channel}`,
-      ephemeral: true,
-    });
-  } catch (error) {
-    console.error('Ticket oluşturulurken hata:', error);
-    if (interaction.deferred || interaction.replied) {
-      await interaction.editReply('Ticket oluşturulurken bir hata oluştu.');
-    } else {
-      await interaction.reply({ content: 'Ticket oluşturulurken bir hata oluştu.', ephemeral: true });
-    }
-  }
+  await channel.send({ content: `<@${interaction.user.id}>`, embeds: [embed], components: [row] });
+
+  // Son olarak interaction'a cevap ver
+  await interaction.editReply({
+    content: `Ticket oluşturuldu: ${channel}`,
+    ephemeral: true,
+  });
 }
 
 client.login(TOKEN);
