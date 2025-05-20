@@ -101,9 +101,9 @@ client.on('interactionCreate', async (interaction) => {
         .setColor('#00AEEF')
         .setTitle('🎟️ **FLEXWARE Tickets** 🎟️')
         .setDescription(
-          `Merhaba! Aşağıdaki menüden ihtiyacınıza uygun olan ticket türünü seçebilirsiniz.\n\n` +
-          `🔹 **Satın Alma**: Bir şey satın almak istiyorsanız, **Satın Alma Bileti** seçin.\n` +
-          `🔹 **Destek**: Destek almak, sorular sormak veya başvuru yapmak için **Destek Bileti** seçin.`
+          `Hello! You can choose the ticket type that suits your needs from the menu below.\n\n` +
+          `🔹 Purchase: If you want to buy something, select Purchase Ticket.\n` +
+          `🔹 Support: Select Support Ticket to get support, ask questions or submit an application.`
         )
         .setFooter({
           text: 'FLEXWARE Destek Ekibi',
@@ -119,14 +119,14 @@ client.on('interactionCreate', async (interaction) => {
         .setPlaceholder('Bir Kategori Seçin!')
         .addOptions([
           {
-            label: 'Satın Alma',
+            label: 'BUY',
             value: 'purchase_ticket',
-            description: 'Satın alma talepleri için.',
+            description: 'For purchase requests.',
           },
           {
-            label: 'Destek',
+            label: 'Support',
             value: 'support_ticket',
-            description: 'Destek talepleri için.',
+            description: 'For support requests.',
           },
         ]);
 
