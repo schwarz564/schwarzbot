@@ -21,6 +21,7 @@ const GUILD_ID = process.env.GUILD_ID;
 const TOKEN = process.env.BOT_TOKEN;
 const SUPPORT_ROLE_ID = process.env.SUPPORT_ROLE_ID;
 const PANEL_CHANNEL_ID = process.env.PANEL_CHANNEL_ID;
+const TICKET_CATEGORY_ID = process.env.TICKET_CATEGORY_ID;
 
 const client = new Client({
   intents: [
@@ -129,13 +130,12 @@ client.once('ready', async () => {
   }
 });
 
-// interaction işlemleri
 client.on('interactionCreate', async (interaction) => {
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName === 'sendpanel') {
-      // ... koruyabilirsin, artık gerek kalmadı
+      // Panel gönderme komutu
     } else if (interaction.commandName === 'add') {
-      // ... kullanıcı ekleme komutu
+      // Kullanıcı ekleme komutu
     }
   } else if (interaction.isStringSelectMenu() && interaction.customId === 'select_ticket_type') {
     if (usersWithOpenTickets.has(interaction.user.id)) {
@@ -185,14 +185,8 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 async function createTicket(interaction, ticketType) {
-  // İşte buraya interaction deferReply ve editReply ekliyoruz:
   await interaction.deferReply({ ephemeral: true });
 
-  // Ticket oluşturma işlemleri buraya gelecek
-  // Örnek olarak:
-  // Sayaç arttır, kanal oluştur, izinleri ayarla, kullanıcıyı kaydet, vs.
-
-  // Aşağıdaki örnek varsayımsal, kendi koduna göre değiştir:
   if (!ticketCounters[ticketType]) ticketCounters[ticketType] = 1;
   else ticketCounters[ticketType]++;
 
@@ -203,14 +197,23 @@ async function createTicket(interaction, ticketType) {
   const channel = await interaction.guild.channels.create({
     name: channelName,
     type: ChannelType.GuildText,
+    parent: TICKET_CATEGORY_ID, // 📌 Burada kategori altında açılır
     permissionOverwrites: [
       {
         id: interaction.user.id,
-        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
+        allow: [
+          PermissionFlagsBits.ViewChannel,
+          PermissionFlagsBits.SendMessages,
+          PermissionFlagsBits.ReadMessageHistory,
+        ],
       },
       {
         id: SUPPORT_ROLE_ID,
-        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory],
+        allow: [
+          PermissionFlagsBits.ViewChannel,
+          PermissionFlagsBits.SendMessages,
+          PermissionFlagsBits.ReadMessageHistory,
+        ],
       },
       {
         id: interaction.guild.id,
@@ -233,9 +236,12 @@ async function createTicket(interaction, ticketType) {
     .setDescription(`Merhaba ${interaction.user}, yetkililer en kısa sürede sizinle ilgilenecektir.`)
     .setColor('#00AEEF');
 
-  await channel.send({ content: `<@${interaction.user.id}>`, embeds: [embed], components: [row] });
+  await channel.send({
+    content: `<@${interaction.user.id}>`,
+    embeds: [embed],
+    components: [row],
+  });
 
-  // Son olarak interaction'a cevap ver
   await interaction.editReply({
     content: `Ticket oluşturuldu: ${channel}`,
     ephemeral: true,
