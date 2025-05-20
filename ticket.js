@@ -226,14 +226,14 @@ async function createTicket(interaction, ticketType) {
 
   const closeButton = new ButtonBuilder()
     .setCustomId('close_ticket')
-    .setLabel('Kapat')
+    .setLabel('Closed')
     .setStyle(ButtonStyle.Danger);
 
   const row = new ActionRowBuilder().addComponents(closeButton);
 
   const embed = new EmbedBuilder()
-    .setTitle('Ticket oluşturuldu')
-    .setDescription(`Merhaba ${interaction.user}, yetkililer en kısa sürede sizinle ilgilenecektir.`)
+    .setTitle('Ticket created')
+    .setDescription(`Hello ${interaction.user}, the authorities will deal with you as soon as possible.`)
     .setColor('#00AEEF');
 
   await channel.send({
@@ -243,7 +243,7 @@ async function createTicket(interaction, ticketType) {
   });
 
   await interaction.editReply({
-    content: `Ticket oluşturuldu: ${channel}`,
+    content: `Ticket created: ${channel}`,
     ephemeral: true,
   });
 }
