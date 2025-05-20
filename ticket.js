@@ -99,14 +99,14 @@ client.on('interactionCreate', async (interaction) => {
 
       const embed = new EmbedBuilder()
         .setColor('#00AEEF')
-        .setTitle('🎟️ **SCHWARZDEV Tickets** 🎟️')
+        .setTitle('🎟️ **FLEXWARE Tickets** 🎟️')
         .setDescription(
           `Merhaba! Aşağıdaki menüden ihtiyacınıza uygun olan ticket türünü seçebilirsiniz.\n\n` +
           `🔹 **Satın Alma**: Bir şey satın almak istiyorsanız, **Satın Alma Bileti** seçin.\n` +
           `🔹 **Destek**: Destek almak, sorular sormak veya başvuru yapmak için **Destek Bileti** seçin.`
         )
         .setFooter({
-          text: 'SCHWARZDEV Destek Ekibi',
+          text: 'FLEXWARE Destek Ekibi',
           iconURL: 'https://cdn.discordapp.com/attachments/1367387231441911851/1367481879246147615/standard.gif',
         })
         .setThumbnail('https://cdn.discordapp.com/attachments/1367387231441911851/1367481879246147615/standard.gif')
