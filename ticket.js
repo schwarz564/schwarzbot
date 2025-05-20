@@ -226,7 +226,7 @@ async function createTicket(interaction, ticketType) {
 
   const closeButton = new ButtonBuilder()
     .setCustomId('close_ticket')
-    .setLabel('Closed')
+    .setLabel('Kapat')
     .setStyle(ButtonStyle.Danger);
 
   const row = new ActionRowBuilder().addComponents(closeButton);
@@ -243,7 +243,7 @@ async function createTicket(interaction, ticketType) {
   });
 
   await interaction.editReply({
-    content: `Ticket created: ${channel}`,
+    content: `Ticket oluşturuldu: ${channel}`,
     ephemeral: true,
   });
 }
