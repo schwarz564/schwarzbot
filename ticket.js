@@ -106,7 +106,7 @@ client.once('ready', async () => {
 
     const selectMenu = new StringSelectMenuBuilder()
       .setCustomId('select_ticket_type')
-      .setPlaceholder('Bir Kategori Seçin!')
+      .setPlaceholder('Select a Category!')
       .addOptions([
         {
           label: 'BUY',
