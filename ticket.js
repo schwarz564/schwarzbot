@@ -99,7 +99,7 @@ client.once('ready', async () => {
       )
       .setFooter({
         text: 'FLEXWARE Support Team',
-        iconURL: 'https://media.discordapp.net/attachments/1373088819989188620/1374201092979818516/20250520_0443_Futuristic_Chrome_Emblem_simple_compose_01jvnnqjzhf7r9c7z3e0pxdyzm.png',
+        iconURL: 'https://cdn.discordapp.com/attachments/1373088819989188620/1374238174963830814/faxc231221_1.gif',
       })
       .setThumbnail('https://media.discordapp.net/attachments/1373088819989188620/1374201092979818516/20250520_0443_Futuristic_Chrome_Emblem_simple_compose_01jvnnqjzhf7r9c7z3e0pxdyzm.png')
       .setImage('https://cdn.discordapp.com/attachments/1373009493973270569/1374208087212425276/standard.gif');
